@@ -103,66 +103,29 @@
             transform: translateY(0);
         }
 
-        .popup-overlay {
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f5f5f5;
+            border-radius: 15px;
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 999;
-            justify-content: center;
-            align-items: center;
-            animation: fadeIn 0.3s ease;
+            animation: fadeIn 0.5s ease;
         }
 
-        .popup-overlay.show {
-            display: flex;
-        }
-
-        .popup {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 500px;
-            width: 90%;
-            text-align: center;
-            position: relative;
-            animation: slideUp 0.3s ease;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 28px;
-            color: #999;
-            cursor: pointer;
-            width: auto;
-            padding: 5px 10px;
-            transition: color 0.2s ease;
-        }
-
-        .close-btn:hover {
-            color: #333;
-            transform: none;
-            box-shadow: none;
+        .result.show {
+            display: block;
         }
 
         .result-text {
             color: #333;
             font-size: 1.1em;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .role {
-            font-size: 2em;
+            font-size: 1.8em;
             font-weight: bold;
-            margin: 20px 0;
+            margin: 15px 0;
         }
 
         .role.full-access {
@@ -190,7 +153,7 @@
         }
 
         .result-image {
-            margin-top: 25px;
+            margin-top: 20px;
             max-width: 100%;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -199,16 +162,7 @@
         @keyframes fadeIn {
             from {
                 opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(10px);
             }
             to {
                 opacity: 1;
@@ -227,14 +181,11 @@
         </div>
         
         <button onclick="checkRole()">Check Role</button>
-    </div>
-
-    <div class="popup-overlay" id="popupOverlay" onclick="closePopup(event)">
-        <div class="popup" onclick="event.stopPropagation()">
-            <button class="close-btn" onclick="closePopup()">&times;</button>
+        
+        <div class="result" id="result">
             <p class="result-text">Your potential role before mainnet is</p>
             <div class="role" id="roleDisplay"></div>
-            <img src="winwin.png" alt="" class="result-image" id="resultImage" />
+            <img src="winwin.png" alt="" class="result-image" id="resultImage" style="display: none;" />
         </div>
     </div>
 
@@ -249,17 +200,38 @@
             { name: 'Gooner Role', probability: 0.01, className: 'gooner' }
         ];
 
-        function getRandomRole() {
-            const random = Math.random();
-            let cumulative = 0;
+        const userRoles = {};
+
+        function simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return Math.abs(hash);
+        }
+
+        function getFixedRole(username) {
+            const normalized = username.toLowerCase().trim();
             
+            if (userRoles[normalized]) {
+                return userRoles[normalized];
+            }
+            
+            const hash = simpleHash(normalized);
+            const random = (hash % 10000) / 10000;
+            
+            let cumulative = 0;
             for (const role of roles) {
                 cumulative += role.probability;
                 if (random <= cumulative) {
+                    userRoles[normalized] = role;
                     return role;
                 }
             }
             
+            userRoles[normalized] = roles[0];
             return roles[0];
         }
 
@@ -271,29 +243,23 @@
                 return;
             }
             
-            const role = getRandomRole();
+            const role = getFixedRole(username);
             const roleDisplay = document.getElementById('roleDisplay');
-            const popupOverlay = document.getElementById('popupOverlay');
+            const resultDiv = document.getElementById('result');
             const resultImage = document.getElementById('resultImage');
             
             roleDisplay.textContent = role.name;
             roleDisplay.className = 'role ' + role.className;
             
+            resultImage.style.display = 'block';
             resultImage.onerror = function() {
                 this.style.display = 'none';
             };
-            resultImage.onload = function() {
-                this.style.display = 'block';
-            };
             
-            popupOverlay.classList.add('show');
-        }
-
-        function closePopup(event) {
-            if (event && event.target.classList.contains('popup')) {
-                return;
-            }
-            document.getElementById('popupOverlay').classList.remove('show');
+            resultDiv.classList.remove('show');
+            setTimeout(() => {
+                resultDiv.classList.add('show');
+            }, 50);
         }
 
         document.getElementById('username').addEventListener('keypress', function(e) {
