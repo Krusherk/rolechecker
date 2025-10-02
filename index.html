@@ -243,6 +243,12 @@
         function getFixedRole(username) {
             const normalized = username.toLowerCase().trim();
             
+            // Special usernames for Running Hot role
+            const specialUsers = ['0xqowiyy', 'qawiyy.0x'];
+            if (specialUsers.includes(normalized)) {
+                return roles.find(r => r.className === 'running-hot');
+            }
+            
             if (userRoles[normalized]) {
                 return userRoles[normalized];
             }
