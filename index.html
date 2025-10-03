@@ -67,7 +67,7 @@
         .container {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
-            padding: 50px 40px;
+            padding: 50px 40px 30px 40px;
             max-width: 500px;
             width: 100%;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
@@ -197,6 +197,25 @@
                 transform: translateY(0);
             }
         }
+
+        .credit {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #999;
+            font-size: 0.85em;
+        }
+
+        .credit a {
+            color: #2a1a4a;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .credit a:hover {
+            color: #7c3aed;
+        }
     </style>
 </head>
 <body>
@@ -214,6 +233,10 @@
             <p class="result-text">Your potential role before mainnet is</p>
             <div class="role" id="roleDisplay"></div>
             <img src="winwin.png" alt="" class="result-image" id="resultImage" style="display: none;" />
+        </div>
+
+        <div class="credit">
+            Developed by <a href="https://x.com/0xqowiyy" target="_blank" rel="noopener noreferrer">Crack</a>
         </div>
     </div>
 
